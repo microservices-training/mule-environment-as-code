@@ -49,7 +49,7 @@
     <concurrentBuild>false</concurrentBuild>
     <builders>
         <hudson.tasks.Shell>
-            <command>.muleci/deployment.sh deployment_descriptor.yml</command>
+            <command>.mule/deployment.sh deployment_descriptor.yml</command>
         </hudson.tasks.Shell>
     </builders>
     <publishers/>
