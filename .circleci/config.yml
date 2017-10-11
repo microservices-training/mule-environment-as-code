@@ -27,5 +27,5 @@ jobs:
       - deploy:
           name: Deployment
           command: | 
-            chmod +x .muleci/deployment.sh;
-            .muleci/deployment.sh deployment_descriptor.yml;
+            chmod +x .mule/deployment.sh;
+            .mule/deployment.sh deployment_descriptor.yml;
