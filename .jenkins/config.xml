@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+    <actions/>
+    <description></description>
+    <keepDependencies>false</keepDependencies>
+    <properties>
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+                <hudson.model.StringParameterDefinition>
+                    <name>env</name>
+                    <description></description>
+                    <defaultValue>dev</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>anypoint_username</name>
+                    <description></description>
+                    <defaultValue>flyaminul</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.PasswordParameterDefinition>
+                    <name>anypoint_password</name>
+                    <description></description>
+                    <defaultValue>{AQAAABAAAAAQ0YORE1cf3ti7t2H5bBFvMdeZZsmqRMMsaKSM6x6aAY4=}</defaultValue>
+                </hudson.model.PasswordParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+    </properties>
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.5.1">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+            <hudson.plugins.git.UserRemoteConfig>
+                <url>https://aminul1983@bitbucket.org/aminul1983/mulesoft_deploymentascode.git</url>
+                <credentialsId>scm</credentialsId>
+            </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+            <hudson.plugins.git.BranchSpec>
+                <name>*/dev</name>
+            </hudson.plugins.git.BranchSpec>
+        </branches>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <submoduleCfg class="list"/>
+        <extensions/>
+    </scm>
+    <canRoam>true</canRoam>
+    <disabled>false</disabled>
+    <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+    <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+    <triggers/>
+    <concurrentBuild>false</concurrentBuild>
+    <builders>
+        <hudson.tasks.Shell>
+            <command>.muleci/deployment.sh deployment_descriptor.yml</command>
+        </hudson.tasks.Shell>
+    </builders>
+    <publishers/>
+    <buildWrappers/>
+</project>
