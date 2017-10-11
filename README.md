@@ -31,27 +31,60 @@ The source code repository for environment management is separate from the appli
 Target state is defined in the deployment descriptor file.
 ```yaml
 CloudHub:  
-  Env: "DEV"
-  BusinessGroup: "MuleSoft"
+  Env: "dev"
+  BusinessGroup: "Mulesoft"
   Applications:
     -
+      name: "amin-s-playground"
+      repoType: "maven"
+      groupId: "com.mulesoft"
+      artifactId: "amin-s-playground"
+      version: "1.0.0-SNAPSHOT"
+      packageType: "zip"
+      packageName: "amin-s-playground-1.0.0-SNAPSHOT.zip"
+      worker-size: "0.1"
+      num-of-workers: "1"
+      runtime: "3.8.5"
+      region: "eu-west-1"
+      staticIPsEnabled: "Disabled"
+      persistentQueues: "false"
+      persistentQueuesEncrypted: "false"
+      properties: "amin-s-playground-dev.properties"
+      repo_endpoint: 'http://51.15.129.23:8090/repository/maven-snapshots/'
+    -
       name: "really-cool-api-v1"
+      repoType: "maven"
+      groupId: "com.mulesoft"
+      artifactId: "really-cool-api"
+      version: "1.0.0-SNAPSHOT"
+      packageType: "zip"
       packageName: "really-cool-api-1.0.0-SNAPSHOT.zip"
       worker-size: "0.1"
       num-of-workers: "2"
       runtime: "3.8.5"
       region: "eu-west-1"
+      staticIPsEnabled: "Disabled"
+      persistentQueues: "false"
+      persistentQueuesEncrypted: "false"
       properties: "really-cool-api-v1-dev.properties"
       repo_endpoint: 'https://link-to-your-maven-repository.com/snapshots/'
     -
       name: "another-really-cool-api-v1"
+      repoType: "raw"
+      groupId: "com.mulesoft"
+      artifactId: "another-really-cool-api"
+      version: "1.0.0-SNAPSHOT"
+      packageType: "zip"
       packageName: "another-really-cool-api-1.0.0-SNAPSHOT.zip"
       worker-size: "1"
       num-of-workers: "1"
       runtime: "3.8.5"
       region: "eu-west-1"
+      staticIPsEnabled: "Disabled"
+      persistentQueues: "false"
+      persistentQueuesEncrypted: "false"
       properties: "another-really-cool-api-v1-dev.properties"
-      repo_endpoint: 'https://link-to-your-maven-repository.com/snapshots/'
+      repo_endpoint: 'https://link-to-your-maven-repository.com/snapshots/com/mulesoft/another-really-cool-api'
 ```
 
 ### Framework Logic
@@ -66,6 +99,9 @@ CloudHub:
         * Number of Workers
         * Runtime
         * Region
+        * Static IP
+        * Persistent Queue
+        * Persistent Queue Encryption
     * Application Properties
     * CloudHub Properties
 
@@ -76,7 +112,7 @@ CloudHub:
 1. Copy of the contents of this repository into your branch if you did not fork this repository.
 1. Configure your CI-Server and trigger execution on commit
 ```sh
-$ .muleci/deployment.sh deployment_descriptor.yml
+$ .mule/deployment.sh deployment_descriptor.yml
 ```
 Use the same command to trigger deployment from your local development workstation.
 1. Configure the Anypoint platform credentials as environment variables in your CI server:
@@ -103,7 +139,7 @@ app_properties/really-cool-api-v1/really-cool-api-dev.properties
 ```
 
 ## Roadmap
-More info on [Git Project page](https://github.com/mulesoft-consulting/MuleSoft_DeploymentAsCode/projects/1)
+More info on [Git Project page](https://github.com/mulesoft-labs/mule-environment-as-code)
 
 | Feature | Deployment Target | Status  | Additional details |
 | --- | --- | --- | --- |
@@ -111,7 +147,8 @@ More info on [Git Project page](https://github.com/mulesoft-consulting/MuleSoft_
 | Application properties | CloudHub | Completed | |
 | Worker Configuration | CloudHub | Completed | runtime version, worker size, num of workers  |
 | CloudHub properties | CloudHub |  | persistence queue, static ips |
-| [Default configuration for CircelCI](https://github.com/mulesoft-consulting/MuleSoft_DeploymentAsCode/tree/master/.circleci) | CircleCI | Completed | |
+| [Default configuration for CircelCI](https://github.com/mulesoft-labs/mule-environment-as-code/tree/master/.circleci) | CircleCI | Completed | |
+| [Default configuration for Jenkins](https://github.com/mulesoft-labs/mule-environment-as-code/tree/master/.jenkins) | Jenkins | Completed | |
 | Create a full example with sample apps | CloudHub |  |  |
 | Deploy Applications | Anypoint Runtime Manager  |  | |
 | Application properties | Anypoint Runtime Manager |  | |
@@ -144,3 +181,4 @@ Build pipeline that published build artefacts into a store
 ## Contributors
 - Jeyaram Deivachandran
 - Igor Repka
+- Mohammad Aminul Haque

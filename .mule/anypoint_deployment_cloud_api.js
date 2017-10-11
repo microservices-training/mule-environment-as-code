@@ -15,6 +15,16 @@ const muleCommon = require('./mule_common');
 var filename = muleCommon.extractFilenameFromArguments();
 var objConfig = muleCommon.parse_deployment_config_file(filename);
 
+if(!objConfig.CloudHub) {
+	console.log('--- Anypoint API: **No** CloudHub config found. Done');
+	process.exit();
+}
+
+var staticIPsEnabledValueTrans = {
+    "Enable": "true",
+    "Disabled": "false"
+};
+
 const ENV = objConfig.CloudHub.Env;
 const ORGID = muleCommon.escapeWhiteSpaces(objConfig.CloudHub.BusinessGroup);
 console.log("Deployment is running for environment: %s, Business Group: %s", ENV, ORGID);
@@ -37,10 +47,10 @@ console.log('--- Anypoint API: all changes applied successfully');
 function deploy(application) {
 	console.log("\u001b[33m### Running deployment of application\u001b[39m: " + application.name);
 	var cloudAppDetails = get_application_details(application.name, muleCommon.exec);
-	
+
 	if(cloudAppDetails == null) { //trigger new application deployment
 		console.log("Deploying: " + application.name);
-		deploy_new_application(application, muleCommon.exec); 		
+		deploy_new_application(application, muleCommon.exec);
 	} else if(is_application_update_required(application, cloudAppDetails)) { //redeploy or modify application
 		console.log("Updating: " + application.name);
 		redeploy_or_modify_application(application, muleCommon.exec);
@@ -53,12 +63,12 @@ function deploy(application) {
 }
 
 /*
- * Function returns application details from CloudHub. 
+ * Function returns application details from CloudHub.
  * If this is the first deployment of application null is returned.
  */
 function get_application_details(appName, execSync) {
-	var command = muleCommon.util.format('anypoint-cli ' + 
-			'--username=$anypoint_username --password=$anypoint_password ' + 
+	var command = muleCommon.util.format('anypoint-cli ' +
+			'--username=$anypoint_username --password=$anypoint_password ' +
 			'--environment=%s ' +
 			'--organization=%s ' +
 			'--output json ' +
@@ -99,13 +109,16 @@ function get_application_details(appName, execSync) {
  * Function checks if there are any changes that would require application update.
  * Function compares details in deployment descriptor with details obtained from CloudHub.
  */
-function is_application_update_required(app, cloudAppDetails) {	
+function is_application_update_required(app, cloudAppDetails) {
 	const workerSize = cloudAppDetails.workers.type.weight;
 	const numberOfWorkers = cloudAppDetails.workers.amount;
 	const runtime = cloudAppDetails.muleVersion.version;
 	const region = cloudAppDetails.region;
 	const properties = cloudAppDetails.properties;
 	const filename = cloudAppDetails.fileName;
+	const staticIPsEnabled = cloudAppDetails.staticIPsEnabled;
+	const persistentQueues = cloudAppDetails.persistentQueues;
+	const persistentQueuesEncrypted = cloudAppDetails.persistentQueuesEncrypted;
 
 	//instead of comparing version the file name is compared with package name configured in deployment descriptor
 	//this can be done because the version is part of the package / file name.
@@ -119,8 +132,8 @@ function is_application_update_required(app, cloudAppDetails) {
 	}
 	if(app["num-of-workers"] != numberOfWorkers) {
 		console.log("Difference in number of Workers detected!");
-		return true;	
-	} 
+		return true;
+	}
 	if(app["runtime"] != runtime) {
 		console.log("Difference in runtime detected!");
 		return true;
@@ -130,9 +143,25 @@ function is_application_update_required(app, cloudAppDetails) {
 		return true;
 	}
 
+    if(staticIPsEnabledValueTrans[app["staticIPsEnabled"]] != staticIPsEnabled) {
+        console.log("Difference in staticIPsEnabled detected!");
+        return true;
+    }
+
+    if(app["persistentQueues"] != persistentQueues) {
+        console.log("Difference in persistentQueues detected!");
+        return true;
+    }
+
+    if(app["persistentQueuesEncrypted"] != persistentQueuesEncrypted) {
+        console.log("Difference in persistentQueuesEncrypted detected!");
+        return true;
+    }
+
+
 	//compare properties
-	const propertiesFile = muleCommon.get_property_file_path(app);	
-	try {  
+	const propertiesFile = muleCommon.get_property_file_path(app);
+	try {
     	//check if properties file exists in repo and if properties exit on CloudHub
     	if (!muleCommon.fs.existsSync(propertiesFile) && properties != null && typeof properties != 'undefined') {
     		console.log("Properties file has not been found! Properties will NOT be updated despite there are properties " +
@@ -142,9 +171,9 @@ function is_application_update_required(app, cloudAppDetails) {
 
     	var propertiesData = muleCommon.fs.readFileSync(propertiesFile, 'utf8');
     	if(propertiesData != null && propertiesData != "") {
-    		console.log("Properties from property file %s:\n%s\n", propertiesFile, propertiesData);    
+    		console.log("Properties from property file %s:\n%s\n", propertiesFile, propertiesData);
     		var propertiesArray = propertiesData.split("\n");
-    		
+
     		//if the number of properties in property file is different then number of properties on CloudHub
     		//properties must be updated
     		if(propertiesArray.length != Object.keys(properties).length) {
@@ -154,7 +183,7 @@ function is_application_update_required(app, cloudAppDetails) {
 
     		//compare data in property file in repo with properties currently set up on CloudHub
     		for(const property of propertiesArray) {
-    			var keyValue = property.split(":");    			
+    			var keyValue = property.split(":");
     			if(properties[keyValue[0]] != keyValue[1]) {
     				console.log("Difference in properties detected!");
     				return true;
@@ -163,9 +192,10 @@ function is_application_update_required(app, cloudAppDetails) {
 
     	} else {
     		console.log("Property file: %s is empty.", propertiesFile);
-    	}    	
+    	}
 	} catch(e) {
     	muleCommon.handle_error(e, "Enable to ready property file for application: " + app.name);
+    	process.exit(-1);
 	}
 
 	return false;
@@ -175,18 +205,18 @@ function is_application_update_required(app, cloudAppDetails) {
  * Function deploys new application on CloudHub
  */
 function deploy_new_application(app, execSync) {
-	muleCommon.downloadPackage(app.packageName, app.repo_endpoint, muleCommon.exec);
+	muleCommon.downloadPackage(app, muleCommon.exec);
 
 	var command = muleCommon.util.format(
-		'anypoint-cli ' + 
-			'--username=$anypoint_username --password=$anypoint_password ' + 
+		'anypoint-cli ' +
+			'--username=$anypoint_username --password=$anypoint_password ' +
 			'--environment=%s ' +
 			'--organization=%s ' +
 			//'--output json ' +
-			'runtime-mgr cloudhub-application deploy %s %s%s ' + 
-			'--workers %s --workerSize %s --region %s --runtime %s',
-			ENV, ORGID, app.name, muleCommon.PACKAGE_FOLDER, app.packageName, app["num-of-workers"], app["worker-size"],
-			app.region, app.runtime);
+			'runtime-mgr cloudhub-application deploy %s %s%s ' +
+			'--workers %s --workerSize %s --region %s --runtime %s --staticIPsEnabled %s --persistentQueues %s --persistentQueuesEncrypted %s',
+			ENV, ORGID, app["name"], muleCommon.PACKAGE_FOLDER, app["packageName"], app["num-of-workers"], app["worker-size"],
+			app["region"], app["runtime"], app["staticIPsEnabled"], app["persistentQueues"], app["persistentQueuesEncrypted"]);
 
 	//if properties file exists attach it to the command to update CloudHub
 	if(muleCommon.fs.existsSync(muleCommon.get_property_file_path(app))) {
@@ -194,9 +224,11 @@ function deploy_new_application(app, execSync) {
 	}
 
 	try {
+		console.log("Running anypint-cli command=>"+command);
 		var result = execSync(command);
 	} catch (e) {
 		muleCommon.handle_error(e, "Cannot deploy new application: " + app.name);
+		process.exit(-1);
 	}
 }
 
@@ -204,27 +236,30 @@ function deploy_new_application(app, execSync) {
  * Modifies / redeploys the application on CloudHub
  */
 function redeploy_or_modify_application(app, execSync) {
-	muleCommon.downloadPackage(app.packageName, app.repo_endpoint, muleCommon.exec);
+	muleCommon.downloadPackage(app, muleCommon.exec);
 
 	var command = muleCommon.util.format(
-		'anypoint-cli ' + 
-			'--username=$anypoint_username --password=$anypoint_password ' + 
+		'anypoint-cli ' +
+			'--username=$anypoint_username --password=$anypoint_password ' +
 			'--environment=%s ' +
 			'--organization=%s ' +
 			//'--output json ' +
 			'runtime-mgr cloudhub-application modify %s %s%s ' +
-			'--workers %s --workerSize %s --region %s --runtime %s',
-			ENV, ORGID, app.name, muleCommon.PACKAGE_FOLDER, app.packageName, app["num-of-workers"], app["worker-size"],
-			app.region, app.runtime);
-	
+			'--workers %s --workerSize %s --region %s --runtime %s --staticIPsEnabled %s --persistentQueues %s --persistentQueuesEncrypted %s',
+			ENV, ORGID, app["name"], muleCommon.PACKAGE_FOLDER, app["packageName"], app["num-of-workers"], app["worker-size"],
+			app["region"], app["runtime"], app["staticIPsEnabled"], app["persistentQueues"], app["persistentQueuesEncrypted"]);
+
 	//if properties file exists attach it to the command to update CloudHub
 	if(muleCommon.fs.existsSync(muleCommon.get_property_file_path(app))) {
 		command = muleCommon.util.format(command + " --propertiesFile %s", muleCommon.get_property_file_path(app));
 	}
 
 	try {
+		console.log("Running anypint-cli command=>"+command);
 		var result = execSync(command);
+
 	} catch (e) {
 		muleCommon.handle_error(e, "Cannot update the application: " + app.name);
+		process.exit(-1);
 	}
 }
