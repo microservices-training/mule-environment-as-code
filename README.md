@@ -86,6 +86,7 @@ CloudHub:
       properties: "another-really-cool-api-v1-dev.properties"
       repo_endpoint: 'https://link-to-your-maven-repository.com/snapshots/com/mulesoft/another-really-cool-api'
 ```
+Please note, at this moment repoType can take either `maven` or `raw` value. We might support more type of repository in future
 
 ### Framework Logic
 
