@@ -195,7 +195,6 @@ function is_application_update_required(app, cloudAppDetails) {
     	}
 	} catch(e) {
     	muleCommon.handle_error(e, "Enable to ready property file for application: " + app.name);
-    	process.exit(-1);
 	}
 
 	return false;
@@ -228,7 +227,6 @@ function deploy_new_application(app, execSync) {
 		var result = execSync(command);
 	} catch (e) {
 		muleCommon.handle_error(e, "Cannot deploy new application: " + app.name);
-		process.exit(-1);
 	}
 }
 
@@ -260,6 +258,5 @@ function redeploy_or_modify_application(app, execSync) {
 
 	} catch (e) {
 		muleCommon.handle_error(e, "Cannot update the application: " + app.name);
-		process.exit(-1);
 	}
 }

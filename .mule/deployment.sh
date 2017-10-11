@@ -13,7 +13,12 @@ filename="$1"
 echo '=== Invoke Anypoint API'
 { #try
 	node .mule/anypoint_deployment_cloud_api.js $filename
-	node .mule/anypoint_deployment_arm_api.js $filename
+
+	# Only start ARM deployment if the Cloud deployment were successful
+	if [ "$?" -eq "0" ];
+    then
+        node .mule/anypoint_deployment_arm_api.js $filename
+    fi
 } || { #catch
 	echo "=== ERROR: Error during deployment"
 	exit 1

@@ -13,7 +13,7 @@ const util = require('util');
 const PROPERTIES_FOLDER = "app_properties/";
 const PACKAGE_FOLDER = "packages/";
 
-supportedRepositoryType = {
+var supportedRepositoryType = {
     MAVEN: {text: "maven", ops: downloadPackage_maven},
     NUGET: {text: "nuget", ops: null},
     NPM: {text: "npm", ops:null},
@@ -33,7 +33,7 @@ function get_property_file_path(app) {
  */
 function handle_error(e, message) {
 	var msg = typeof message != 'undefined' ? message : "";
-	console.log("Unknown error: " + msg + "\n" + e);
+	console.error("Unknown error: " + msg + "\n" + e);
 	console.log("Unknown error - stderr: " + e.stderr);
 	console.log("Unknown error - stdout: " + e.stdout);
 	process.exit(-1);
@@ -50,8 +50,7 @@ function parse_deployment_config_file(filename) {
     	console.log(indentedJson);
     	return JSON.parse(indentedJson);
 	} catch (e) {
-    	console.log(e);
-    	process.exit(-1);
+    	muleCommon.handle_error(e, "Unable to read the config file. Please have a look into the deployment descriptor.");
 	}
 }
 
@@ -61,9 +60,6 @@ function downloadPackage(app, execSync) {
      var ops = getArtefactRepositoryOps(app.repoType);
      if(ops) {
         ops(app, execSync);
-     }
-     else {
-        process.exit(-1);
      }
 }
 
@@ -82,7 +78,6 @@ function downloadPackage_raw(app, execSync) {
 		execSync(command);
 	} catch (e) {
 		handle_error(e, "Package downloading failed.");
-		process.exit(-1);
 	}
 }
 
@@ -118,8 +113,7 @@ function extractFilenameFromArguments() {
 		console.log('File contains all deployment config properties: ' + filename);
 		return filename;
 	} else {
-		console.error('ERROR: File argument is misssing!');
-		process.exit(-1);
+	    handle_error(e, "ERROR: File argument is misssing!");
 	}
 }
 
