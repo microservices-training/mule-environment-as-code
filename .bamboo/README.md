@@ -9,6 +9,7 @@ These needs to done before creating Bamboo pipeline for the environment.
   - anypoint-cli looks for `node` executable, so we need to make a symlink for the `nodejs` to `node` if there is only nodes (ignore otherwise)
       -`sudo ln -s /usr/bin/nodejs /usr/bin/node`
 - Install anypoint-cli. Once you have Node JS, rest of the commands will be almost same
+- Please, anypoint-cli requires 'git' to work. So if your system does noyt have it, please install it first  
   - `sudo npm install -g anypoint-cli`
 - Install JS-YAML package
   - `sudo npm install js-yaml` 
