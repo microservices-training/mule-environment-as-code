@@ -239,13 +239,13 @@ function deploy_new_application(app, execSync, externalProperties) {
 			ENV, ORGID, app["name"], muleCommon.PACKAGE_FOLDER, app["packageName"], app["num-of-workers"], app["worker-size"],
 			app["region"], app["runtime"], staticIPsEnabled, persistentQueues, persistentQueuesEncrypted);
 
-    if(externalProperties && externalProperties.length > 0) {
+    if(app.propertyKeys.length > 0  && !muleCommon.isEmptyObject(externalProperties)) {
         command = command + " " + muleCommon.composePropertyParams(externalProperties) + " ";
     }
 
 	//if properties file exists attach it to the command to update CloudHub
 	if(muleCommon.fs.existsSync(muleCommon.get_property_file_path(app))) {
-		//command = muleCommon.util.format(command + " --propertiesFile %s", muleCommon.get_property_file_path(app));
+		command = muleCommon.util.format(command + " --propertiesFile %s", muleCommon.get_property_file_path(app));
 	}
 
 	try {
@@ -277,7 +277,7 @@ function redeploy_or_modify_application(app, execSync, cloudAppDetails, external
 			ENV, ORGID, app["name"], muleCommon.PACKAGE_FOLDER, app["packageName"], app["num-of-workers"], app["worker-size"],
 			app["region"], app["runtime"], staticIPsEnabled, persistentQueues, persistentQueuesEncrypted);
 
-    if(externalProperties) {
+    if(app.propertyKeys.length > 0  && !muleCommon.isEmptyObject(externalProperties)) {
         command = command + " " + muleCommon.composePropertyParams(externalProperties) + " ";
     }
 	    //if properties file exists attach it to the command to update CloudHub

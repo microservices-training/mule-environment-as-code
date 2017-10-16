@@ -259,6 +259,10 @@ function escape(str) {
     return str;
 }
 
+function isEmptyObject(obj) {
+  return obj== null || !Object.keys(obj).length;
+}
+
 /*
  * Functionality exported by this module
  */
@@ -274,6 +278,7 @@ module.exports.findProperty			  		= findProperty;
 module.exports.composePropertyParams			  		= composePropertyParams;
 module.exports.extend			  		= extend;
 module.exports.loadExternalPropertySource			  		= loadExternalPropertySource;
+module.exports.isEmptyObject			  		= isEmptyObject;
 
 
 module.exports.fs = fs;
