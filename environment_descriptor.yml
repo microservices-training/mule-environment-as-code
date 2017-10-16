@@ -1,0 +1,79 @@
+CloudHub:
+  Env: "dev"
+  BusinessGroup: "Mulesoft"
+  ExternalPropertySource: "keepass"
+  Applications:
+    -
+      name: "amin-s-playground"
+      repoType: "maven"
+      groupId: "com.mulesoft"
+      artifactId: "amin-s-playground"
+      version: "1.0.0-SNAPSHOT"
+      packageType: "zip"
+      packageName: "amin-s-playground-1.0.0-SNAPSHOT.zip"
+      worker-size: "0.2"
+      num-of-workers: "1"
+      runtime: "3.8.5"
+      region: "eu-west-1"
+      staticIPsEnabled: "Disabled"
+      persistentQueues: "false"
+      persistentQueuesEncrypted: "false"
+      properties: "amin-s-playground-dev.properties"
+      repo_endpoint: 'http://51.15.129.23:8090/repository/maven-snapshots/'
+      propertyKeys:
+        -
+          keypass_entrytitle: "BusinessGroupDetails"
+          mulefield: "anypoint.platform.client_secret"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "BusinessGroupDetails"
+          mulefield: "anypoint.platform.client_id"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "Cloudhub"
+          mulefield: "cloudhub.username"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "Cloudhub"
+          mulefield: "cloudhub.password"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "MuleEsbDB"
+          mulefield: "db.host"
+          keypass_entryfield: "URL"
+        -
+          keypass_entrytitle: "MuleEsbDB"
+          mulefield: "db.user"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "MuleEsbDB"
+          mulefield: "db.password"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "AWS_S3"
+          mulefield: "s3.client"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "AWS_S3"
+          mulefield: "s3.secret"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "ComExS3Bucket"
+          mulefield: "s3.bucket.name"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "CollectSQS"
+          mulefield: "sqs.access.key"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "CollectSQS"
+          mulefield: "sqs.secret.key"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "SQSQueues"
+          mulefield: "sqs.queue.name.source"
+          keypass_entryfield: "cde.generator"
+        -
+          keypass_entrytitle :  "AWS_AccountNo"
+          mulefield: "aws.account.no"
+          keypass_entryfield: "UserName"

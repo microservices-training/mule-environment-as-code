@@ -1,7 +1,7 @@
-# Mule Deployments as Code
+# Mule Environment As Code (EaC)
 
 ## Introduction
-Once you have declared your deployment target state in a file, the target state can be realised simply by committing the file to a source control system. Mule DaC framework will parse the file (deployment descriptor) and compare with the environment and make the necessary changes.  For example, increase the number of workers in CloudHub for an application.
+Once you have declared your environment target state in a file, the target state can be realised simply by committing the file to a source control system. Mule EaC framework will parse the file (environment descriptor) and compare with the environment and make the necessary changes.  For example, increase the number of workers in CloudHub for an application.
 
 ![Deployment Pipeline](images/deployment_pipeline.png "Deployment Pipeline")
 
@@ -15,7 +15,7 @@ The source code repository for environment management is separate from the appli
 
 ### The main advantages of the [Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_Code) approach allows for:
 
--  rollback to previously known state through [git revert](https://git-scm.com/docs/git-revert).
+- rollback to previously known state through [git revert](https://git-scm.com/docs/git-revert).
 - deployment of multiple applications update together or if you prefer a single application update.
 - decouple build from deployment and the promotion of code (binary) through the environments. 
 - comparison of configuration between environments and know the deployment configuration of your environment any given time.
@@ -30,9 +30,10 @@ The source code repository for environment management is separate from the appli
 ### Example of deployment descriptor file for CloudHub:
 Target state is defined in the deployment descriptor file.
 ```yaml
-CloudHub:  
+CloudHub:
   Env: "dev"
   BusinessGroup: "Mulesoft"
+  ExternalPropertySource: "keepass"
   Applications:
     -
       name: "amin-s-playground"
@@ -42,7 +43,7 @@ CloudHub:
       version: "1.0.0-SNAPSHOT"
       packageType: "zip"
       packageName: "amin-s-playground-1.0.0-SNAPSHOT.zip"
-      worker-size: "0.1"
+      worker-size: "0.2"
       num-of-workers: "1"
       runtime: "3.8.5"
       region: "eu-west-1"
@@ -51,6 +52,63 @@ CloudHub:
       persistentQueuesEncrypted: "false"
       properties: "amin-s-playground-dev.properties"
       repo_endpoint: 'http://51.15.129.23:8090/repository/maven-snapshots/'
+      propertyKeys:
+        -
+          keypass_entrytitle: "BusinessGroupDetails"
+          mulefield: "anypoint.platform.client_secret"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "BusinessGroupDetails"
+          mulefield: "anypoint.platform.client_id"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "Cloudhub"
+          mulefield: "cloudhub.username"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "Cloudhub"
+          mulefield: "cloudhub.password"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "MuleEsbDB"
+          mulefield: "db.host"
+          keypass_entryfield: "URL"
+        -
+          keypass_entrytitle: "MuleEsbDB"
+          mulefield: "db.user"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "MuleEsbDB"
+          mulefield: "db.password"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "AWS_S3"
+          mulefield: "s3.client"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "AWS_S3"
+          mulefield: "s3.secret"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "ComExS3Bucket"
+          mulefield: "s3.bucket.name"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "CollectSQS"
+          mulefield: "sqs.access.key"
+          keypass_entryfield: "UserName"
+        -
+          keypass_entrytitle: "CollectSQS"
+          mulefield: "sqs.secret.key"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "SQSQueues"
+          mulefield: "sqs.queue.name.source"
+          keypass_entryfield: "cde.generator"
+        -
+          keypass_entrytitle :  "AWS_AccountNo"
+          mulefield: "aws.account.no"
+          keypass_entryfield: "UserName"
     -
       name: "really-cool-api-v1"
       repoType: "maven"
@@ -68,6 +126,15 @@ CloudHub:
       persistentQueuesEncrypted: "false"
       properties: "really-cool-api-v1-dev.properties"
       repo_endpoint: 'https://link-to-your-maven-repository.com/snapshots/'
+      propertyKeys:
+        -
+          keypass_entrytitle: "BusinessGroupDetails"
+          mulefield: "anypoint.platform.client_secret"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "BusinessGroupDetails"
+          mulefield: "anypoint.platform.client_id"
+          keypass_entryfield: "UserName"
     -
       name: "another-really-cool-api-v1"
       repoType: "raw"
@@ -85,8 +152,18 @@ CloudHub:
       persistentQueuesEncrypted: "false"
       properties: "another-really-cool-api-v1-dev.properties"
       repo_endpoint: 'https://link-to-your-maven-repository.com/snapshots/com/mulesoft/another-really-cool-api'
+      propertyKeys:
+        -
+          keypass_entrytitle: "BusinessGroupDetails"
+          mulefield: "anypoint.platform.client_secret"
+          keypass_entryfield: "Password"
+        -
+          keypass_entrytitle: "BusinessGroupDetails"
+          mulefield: "anypoint.platform.client_id"
+          keypass_entryfield: "UserName"
 ```
-Please note, at this moment repoType can take either `maven` or `raw` value. We might support more type of repository in future
+- At present, the framework can only source injected properties from property file stored in app_properties directory and/or from KeePass database. It is perfectly alright to source the properties from both or from only one of the sources. I do not forsee any need for more than 2 property sources at any given time. Based on project requirement, more external propert source (like database ) could be easily implemented
+- Please note, at this moment repoType can take either `maven` or `raw` value. We might support more type of repository in future
 
 ### Framework Logic
 
@@ -173,7 +250,8 @@ Build pipeline that published build artefacts into a store
 
 #### Artefacts store/repository
 - Store for application binaries
-    -  Preferably maven repository server, such as Nexus, JFrog, etc.
+    -  Preferably maven artefact repository, such as Nexus, JFrog, etc.
+    -  At present, we support maven and raw 
 
 ## Recommendations:
 - Create a branch per environment 

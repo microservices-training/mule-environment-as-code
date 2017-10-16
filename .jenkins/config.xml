@@ -53,7 +53,7 @@
     <concurrentBuild>false</concurrentBuild>
     <builders>
         <hudson.tasks.Shell>
-            <command>.mule/deployment.sh deployment_descriptor.yml</command>
+            <command>.mule/deployment.sh environment_descriptor.yml</command>
         </hudson.tasks.Shell>
     </builders>
     <publishers/>

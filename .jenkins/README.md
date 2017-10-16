@@ -20,4 +20,8 @@
 
 - Install JS-YAML package
 
-  - `sudo npm install -g js-yaml`
+  - `sudo npm install js-yaml`
+  
+- Install keepass.io
+
+    - `npm install keepass.io`

@@ -24,12 +24,13 @@ const ENV = objConfig.OnPrem.Env;
 const ORGID = muleCommon.escapeWhiteSpaces(objConfig.OnPrem.BusinessGroup);
 console.log("Deployment is running for environment: %s, Business Group: %s", ENV, ORGID);
 
-//run deployment logic for every application in config file
-for (const app of objConfig.OnPrem.Applications) {
-	if(app != null) deploy(app);
-}
+// 'entries' will have all the property from the external source.
+var callback = function (externalProperties, application) {
+    deploy(externalProperties, application);
+    console.log('--- Anypoint API: all changes applied successfully');
+};
 
-console.log('--- Anypoint API: all changes applied successfully');
+muleCommon.loadExternalPropertySource(objConfig.OnPrem, callback);
 
 // ====================================
 // === function declaration section ===
@@ -39,7 +40,7 @@ console.log('--- Anypoint API: all changes applied successfully');
  * Main function for deployment logic.
  * Deploys or redeploys application on On-Prem server
  */
-function deploy(application) {
+function deploy(keepasses, application) {
 	console.log("\u001b[33m### Running deployment of application\u001b[39m: " + application.name);
 	var cloudAppDetails = get_application_details(application.name, muleCommon.exec);
 

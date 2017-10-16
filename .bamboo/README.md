@@ -12,6 +12,6 @@ These needs to done before creating Bamboo pipeline for the environment.
   - `sudo npm install -g anypoint-cli`
 - Install JS-YAML package
   - `sudo npm install js-yaml` 
-- Install keepass.io. Keepass.io helps us integrate KeePass database. Unfortunately it is very slow decrypting files at present.
+- Install keepass.io
   - `npm install keepass.io`
   	- Ignore any errors with message 'DO NOT WORRY ABOUT THESE MESSAGES. KEEPASS.IO WILL FALLBACK TO SLOWER NODE.JS METHODS, SO THERE ARE NO LIMITATIONS EXCEPT SLOWER PERFORMANCE.'
