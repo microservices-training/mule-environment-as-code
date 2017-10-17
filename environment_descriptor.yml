@@ -11,7 +11,7 @@ CloudHub:
       version: "1.0.0-SNAPSHOT"
       packageType: "zip"
       packageName: "amin-s-playground-1.0.0-SNAPSHOT.zip"
-      worker-size: "0.2"
+      worker-size: "0.1"
       num-of-workers: "1"
       runtime: "3.8.5"
       region: "eu-west-1"

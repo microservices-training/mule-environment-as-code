@@ -162,7 +162,7 @@ CloudHub:
           mulefield: "anypoint.platform.client_id"
           keypass_entryfield: "UserName"
 ```
-- At present, the framework can only source injected properties from property file stored in app_properties directory and/or from KeePass database. It is perfectly alright to source the properties from both or from only one of the sources. I do not forsee any need for more than 2 property sources at any given time. Based on project requirement, more external propert source (like database ) could be easily implemented
+- At present, the framework can only source injected properties from property file stored in app_properties directory and/or from KeePass database. It is perfectly alright to source the properties from both or from only one of the sources. I do not forsee any need for more than 2 property sources at any given time. Based on project requirement, more external property source (like database ) could be easily implemented
 - Please note, at this moment repoType can take either `maven` or `raw` value. We might support more type of repository in future
 
 ### Framework Logic
@@ -190,13 +190,13 @@ CloudHub:
 1. Copy of the contents of this repository into your branch if you did not fork this repository.
 1. Configure your CI-Server and trigger execution on commit
 ```sh
-$ .mule/deployment.sh deployment_descriptor.yml
+$ .mule/environment-init.sh environment_descriptor.yml
 ```
 Use the same command to trigger deployment from your local development workstation.
 1. Configure the Anypoint platform credentials as environment variables in your CI server:
     * anypoint_username
     * anypoint_password
-1. Update `deployment_descriptor.yml` with:
+1. Update `environment_descriptor.yml` with:
     * Env
     * Business Group
     * Applications
